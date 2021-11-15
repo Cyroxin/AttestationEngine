@@ -1,62 +1,52 @@
-name: Android CI
+name: CI
 
 on:
-  push:
-    branches: [main]
+   push:
+    branches: [ main ]
   pull_request:
-    branches: [main]
-
+    branches: [ main ]
+  workflow_dispatch:
 jobs:
-  build:
+  lint:
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v2
-      - name: set up JDK 11
-        uses: actions/setup-java@v2
+      - name: Checkout the code
+        uses: actions/checkout@v2
+      - name: Run lint
+        run: ./gradlew lintDebug
+      - name: Upload html test report
+        uses: actions/upload-artifact@v2
         with:
-          java-version: "11"
-          distribution: "adopt"
-          cache: gradle
-
-      - name: Grant execute permission for gradlew
-        working-directory: ./apps/mobileattester
-        run: chmod +x gradlew
-      - name: Build with Gradle
-        working-directory: ./apps/mobileattester
-        run: ./gradlew build
-
+          name: lint.html
+          path: app/build/reports/lint-results-debug.html
   test:
-    name: Run Unit Tests
+    needs: [ lint ]
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v2
-      - name: set up JDK 11
-        uses: actions/setup-java@v2
+      - name: Checkout the code
+        uses: actions/checkout@v2
+      - name: Run tests
+        run: ./gradlew test
+      - name: Upload test report
+        uses: actions/upload-artifact@v2
         with:
-          java-version: "11"
-          distribution: "adopt"
-          cache: gradle
-      - name: Unit tests
-        working-directory: ./apps/mobileattester
-        run: bash ./gradlew test
-
+          name: unit_test_report
+          path: app/build/reports/tests/testDebugUnitTest/
   apk:
+    needs: [ test ]
     name: Generate APK
-    needs: [test]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: set up JDK 11
+      - name: set up JDK 1.8
         uses: actions/setup-java@v1
         with:
-          java-version: "11"
+          java-version: 11
       - name: Build APK
         run: ./gradlew assembleDebug
       - name: Upload APK
         uses: actions/upload-artifact@v2
         with:
-          name: apk
+          name: expense-manager.apk
           path: app/build/outputs/apk/debug/app-debug.apk
