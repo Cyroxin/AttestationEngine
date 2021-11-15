@@ -24,6 +24,7 @@ jobs:
         working-directory: ./apps/mobileattester
         run: ./gradlew build
   lint:
+    needs: [ build ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the code
@@ -34,7 +35,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: lint.html
-          path: app/build/reports/lint-results-debug.html
+          path: ./app/build/reports/lint-results-debug.html
   test:
     needs: [ lint ]
     runs-on: ubuntu-latest
@@ -47,7 +48,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: unit_test_report
-          path: app/build/reports/tests/testDebugUnitTest/
+          path: ./app/build/reports/tests/testDebugUnitTest/
   apk:
     needs: [ test ]
     name: Generate APK
@@ -65,4 +66,4 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: expense-manager.apk
-          path: app/build/outputs/apk/debug/app-debug.apk
+          path: ./app/build/outputs/apk/debug/app-debug.apk
