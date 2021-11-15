@@ -40,7 +40,7 @@ jobs:
           cache: gradle
       - name: Unit tests
         working-directory: ./apps/mobileattester
-        run: ./gradlew test
+        run: bash ./gradlew test
 
   apk:
     name: Generate APK
