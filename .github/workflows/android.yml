@@ -40,7 +40,8 @@ jobs:
           cache: gradle
       - name: Unit tests
         working-directory: ./apps/mobileattester
-        run: bash ./gradlew test --stacktrace
+        run: ./gradlew test
+
   apk:
     name: Generate APK
     needs: test
@@ -55,7 +56,7 @@ jobs:
           distribution: "adopt"
           cache: gradle
       - name: Build APK
-        run: bash ./gradlew assembleDebug --stacktrace
+        run: ./gradlew assembleDebug
       - name: Upload APK
         uses: actions/upload-artifact@v2
         with:
