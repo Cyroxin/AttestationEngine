@@ -59,7 +59,7 @@ jobs:
         working-directory: ./apps/mobileattester
         run: chmod +x gradlew
       - name: Build APK
-        run: bash ./gradlew assembleDebug
+        run: ./gradlew assembleDebug
       - name: Upload APK
         uses: actions/upload-artifact@v2
         with:
