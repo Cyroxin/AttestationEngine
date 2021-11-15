@@ -56,7 +56,7 @@ jobs:
           distribution: "adopt"
           cache: gradle
       - name: Build APK
-        run: ./gradlew assembleDebug
+        run: bash ./gradlew assembleDebug
       - name: Upload APK
         uses: actions/upload-artifact@v2
         with:
