@@ -16,11 +16,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.mobileattester.ui.components.common.LoadingIndicator
+import com.example.mobileattester.ui.theme.*
 import com.example.mobileattester.ui.util.Preferences
 import com.example.mobileattester.ui.util.Screen
 import com.example.mobileattester.ui.util.parseBaseUrl
@@ -28,6 +30,7 @@ import com.example.mobileattester.ui.viewmodel.AttestationViewModel
 import compose.icons.TablerIcons
 import compose.icons.tablericons.*
 import kotlinx.coroutines.launch
+
 
 @Composable
 fun Home(navController: NavController? = null, viewModel: AttestationViewModel) {
@@ -48,7 +51,7 @@ fun Home(navController: NavController? = null, viewModel: AttestationViewModel) 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(13, 110, 253))
+            .background(Primary)
             .border(0.dp, Color.Transparent)
             .verticalScroll(scrollState),
     ) {
@@ -60,9 +63,12 @@ fun Home(navController: NavController? = null, viewModel: AttestationViewModel) 
                 .border(0.dp, Color.Transparent),
         ) {
 
-            Text(text = AnnotatedString("Current Configuration",
-                SpanStyle(Color.White, fontSize = 24.sp)),
-                modifier = Modifier.padding(0.dp, 15.dp, 0.dp, 5.dp))
+            Text(
+                text = "Current Configuration",
+                modifier = Modifier.padding(0.dp, 15.dp, 0.dp, 5.dp),
+                fontSize = FONTSIZE_XXL,
+                color = Color.White
+            )
 
             // Current Engine
             ConfigurationButton(text = currentEngine,
@@ -71,7 +77,6 @@ fun Home(navController: NavController? = null, viewModel: AttestationViewModel) 
                 onClick = {
                     showAllConfigurations = !showAllConfigurations
                 })
-
 
             if (showAllConfigurations) {
                 (list.value.filter { it != currentEngine }).forEach { engineAddress ->
@@ -82,7 +87,6 @@ fun Home(navController: NavController? = null, viewModel: AttestationViewModel) 
 
                             // Refresh
                             showAllConfigurations = false
-                            showAllConfigurations = true
                         },
                         onIconClick = {
                             list.value.remove(it)
@@ -125,20 +129,28 @@ fun Home(navController: NavController? = null, viewModel: AttestationViewModel) 
                                 showAllConfigurations = true
                             }
                         } else {
-                            Toast.makeText(context,
+                            Toast.makeText(
+                                context,
                                 "${if (!validAddress) "Address" else "Port"} is invalid",
-                                Toast.LENGTH_SHORT).show()
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                     })
             }
         }
         // Content
-        Column(modifier = Modifier
-            .fillMaxSize()
-            .clip(RoundedCornerShape(5, 5, 0, 0))
-            .background(Color.White)) {
-            Content(navController, viewModel)
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .clip(RoundedCornerShape(5, 5, 0, 0))
+                .background(Color.White)
+        ) {
+            Column(Modifier.padding(4.dp)) {
+                Content(navController, viewModel)
+            }
         }
+
+
     }
 }
 
@@ -152,13 +164,17 @@ fun ConfigurationButton(
     onTextChange: (String) -> Unit = {},
     onIconClick: (String) -> Unit = {},
 ) {
-    Button(modifier = Modifier
-        .fillMaxWidth()
-        .padding(0.dp, 5.dp),
+    Button(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(0.dp, 5.dp),
         onClick = { onClick(text) },
-        colors = ButtonDefaults.buttonColors(backgroundColor = Color.Transparent,
-            contentColor = Color.White),
-        elevation = null) {
+        colors = ButtonDefaults.buttonColors(
+            backgroundColor = Color.Transparent,
+            contentColor = Color.White
+        ),
+        elevation = null
+    ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -171,7 +187,8 @@ fun ConfigurationButton(
                 if (!editable) {
                     Text(name)
                     Text(text)
-                } else OutlinedTextField(value = input,
+                } else OutlinedTextField(
+                    value = input,
                     label = { Text(text) },
                     onValueChange = { input = it; onTextChange(input) },
                     singleLine = true,
@@ -180,7 +197,8 @@ fun ConfigurationButton(
                         focusedLabelColor = Color.White,
                         unfocusedBorderColor = Color.White,
                         focusedBorderColor = Color.White,
-                    ))
+                    )
+                )
             }
 
             IconButton(onClick = { if (!editable) onIconClick(text) else onIconClick(input) }) {
@@ -195,56 +213,59 @@ fun Content(navController: NavController? = null, viewModel: AttestationViewMode
     val elementCount = viewModel.elementCount.collectAsState()
     val refreshing = viewModel.isRefreshing.collectAsState()
 
-    Row(modifier = Modifier
-        .padding(15.dp)
-        .fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween) {
+    Row(
+        modifier = Modifier
+            .padding(15.dp)
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
         Row() {
-            Icon(TablerIcons.DeviceDesktop,
+            Icon(
+                TablerIcons.DeviceDesktop,
                 contentDescription = null,
                 modifier = Modifier
                     .padding(5.dp, 0.dp)
                     .align(Alignment.CenterVertically)
-                    .size(25.dp))
-            Text("System Devices",
+                    .size(25.dp)
+            )
+            Text(
+                "System Devices",
                 modifier = Modifier
                     .padding(5.dp, 0.dp)
                     .align(Alignment.CenterVertically),
-                fontSize = 18.sp)
+                fontSize = 18.sp
+            )
         }
 
         if (refreshing.value) {
-            CircularProgressIndicator(
-                modifier = Modifier
-                    .size(32.dp)
-                    .align(Alignment.CenterVertically),
-                color = MaterialTheme.colors.primary,
-            )
+            LoadingIndicator()
         } else {
-            Text(AnnotatedString(elementCount.value.toString()),
+            Text(
+                AnnotatedString(elementCount.value.toString()),
                 modifier = Modifier
                     .padding(5.dp, 0.dp)
                     .align(Alignment.CenterVertically)
                     .fillMaxWidth(),
                 textAlign = TextAlign.End,
-                fontSize = 24.sp)
+                fontSize = 24.sp
+            )
         }
     }
 
-    Text(text = AnnotatedString("Attestation Overview", SpanStyle(fontSize = 24.sp)),
+    Text(
+        text = "Attestation Overview",
         modifier = Modifier
             .fillMaxWidth()
             .padding(0.dp, 15.dp, 0.dp, 5.dp),
-        textAlign = TextAlign.Center)
+        textAlign = TextAlign.Center,
+        fontSize = FONTSIZE_XXL
+    )
+    Spacer(modifier = Modifier.size(10.dp))
     Alert("24h") { navController!!.navigate(Screen.Elements.route) }
+    Spacer(modifier = Modifier.size(20.dp))
     Alert("Past week") { navController!!.navigate(Screen.Elements.route) }
 
-
-
-    Text(text = AnnotatedString("Debug", SpanStyle(fontSize = 24.sp)),
-        modifier = Modifier.padding(10.dp))
-
-    Text(text = elementCount.value.toString(), modifier = Modifier.padding(10.dp))
+    Spacer(modifier = Modifier.size(200.dp)) // TODO: Change layout to be similar to Elements page
 }
 
 @Composable
@@ -254,41 +275,67 @@ fun Alert(
     failed: Int = 0,
     onClick: () -> Unit = {},
 ) {
-    Text(text = AnnotatedString(alertDurationInfo, SpanStyle(fontSize = 24.sp)),
-        modifier = Modifier.padding(10.dp))
-    Row(modifier = Modifier
-        .fillMaxWidth()
-        .clickable { onClick() }) {
+    Text(
+        text = alertDurationInfo,
+        modifier = Modifier.padding(10.dp, 5.dp),
+        fontSize = FONTSIZE_XL
+    )
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() },
+        Arrangement.SpaceBetween,
+        Alignment.CenterVertically
+    ) {
         Column(modifier = Modifier.padding(10.dp)) {
-            Text(text = "Verified Attestations", color = Color(13, 110, 253))
-            Row {
-                Icon(TablerIcons.ListSearch, contentDescription = null, tint = Color(13, 110, 253))
-                Text((accepted + failed).toString(),
-                    color = Color(13, 110, 253),
-                    modifier = Modifier.padding(5.dp, 0.dp))
+            Text(text = "Verified Attestations", color = Primary)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    TablerIcons.ListSearch,
+                    contentDescription = null,
+                    tint = Primary,
+                    modifier = Modifier.size(28.dp),
+                )
+                Text(
+                    (accepted + failed).toString(),
+                    color = Primary,
+                    modifier = Modifier.padding(5.dp, 0.dp),
+                    fontSize = FONTSIZE_LG,
+                    fontWeight = FontWeight.SemiBold
+                )
             }
         }
         Column(modifier = Modifier.padding(10.dp)) {
-            Text(text = "Accepted", color = Color(41, 113, 73))
+            Text(text = "Accepted", color = Ok)
             Row {
-                Icon(TablerIcons.SquareCheck, contentDescription = null, tint = Color(41, 113, 73))
-                Text(accepted.toString(),
-                    color = Color(41, 113, 73),
-                    modifier = Modifier.padding(5.dp, 0.dp))
+                Icon(TablerIcons.SquareCheck, contentDescription = null, tint = Ok)
+                Text(
+                    accepted.toString(),
+                    color = Ok,
+                    modifier = Modifier.padding(5.dp, 0.dp),
+                    fontSize = FONTSIZE_LG,
+                    fontWeight = FontWeight.SemiBold
+                )
             }
         }
         Column(modifier = Modifier.padding(10.dp)) {
-            Text(text = "Failed", color = Color(173, 0, 32))
+            Text(text = "Failed", color = Error)
             Row {
-                Icon(TablerIcons.SquareX, contentDescription = null, tint = Color(173, 0, 32))
-                Text(failed.toString(),
-                    color = Color(173, 0, 32),
-                    modifier = Modifier.padding(5.dp, 0.dp))
+                Icon(TablerIcons.SquareX, contentDescription = null, tint = Error)
+                Text(
+                    failed.toString(),
+                    color = Error,
+                    modifier = Modifier.padding(5.dp, 0.dp),
+                    fontSize = FONTSIZE_LG,
+                    fontWeight = FontWeight.SemiBold
+                )
             }
         }
-        Column(modifier = Modifier
-            .padding(10.dp)
-            .align(Alignment.CenterVertically)) {
+        Column(
+            modifier = Modifier
+                .padding(10.dp)
+                .align(Alignment.CenterVertically)
+        ) {
             Icon(TablerIcons.ChevronRight, contentDescription = null)
         }
     }
